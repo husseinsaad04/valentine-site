@@ -9,11 +9,14 @@
   body{
     margin:0;
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    height:100vh;
-    display:grid;
-    place-items:center;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     background:linear-gradient(135deg,#ffe1ef,#fff7e1);
-    overflow:hidden;
+    overflow-y:auto;          /* ✅ allows scrolling */
+    overflow-x:hidden;
+    padding:24px 0;           /* ✅ gives space when content grows */
   }
 
   .heart{
@@ -58,7 +61,7 @@
     background:#ff2d7a;
     transition:width .2s;
   }
-  .meterLabel{font-size:13px;margin-bottom:16px}
+  .meterLabel{font-size:13px;margin-bottom:16px;font-weight:750;opacity:.8}
 
   .btns{
     display:flex;
@@ -74,6 +77,7 @@
     border-radius:999px;
     font-weight:800;
     cursor:pointer;
+    user-select:none;
   }
 
   #yes{background:#ff2d7a;color:#fff}
@@ -85,22 +89,25 @@
     transform:translate(-50%,-50%);
   }
 
-  .msg{margin-top:18px;font-weight:800;min-height:24px}
+  .msg{margin-top:18px;font-weight:850;min-height:24px}
 
-  .plan{display:none;margin-top:18px}
+  .plan{
+    display:none;
+    margin-top:18px;
+  }
   .smallBtn{
     background:#111;color:#fff;
     padding:8px 14px;
     border-radius:999px;
     margin:4px;
-    font-weight:800;
+    font-weight:850;
   }
   .ghostBtn{
     background:transparent;
     border:2px solid rgba(0,0,0,.3);
     padding:8px 14px;
     border-radius:999px;
-    font-weight:800;
+    font-weight:850;
   }
 
   /* Slideshow */
@@ -124,7 +131,7 @@
     inset:0;
     width:100%;
     height:100%;
-    object-fit:cover;
+    object-fit:cover;       /* change to contain if you want no crop */
     opacity:0;
     transition:opacity .35s ease;
   }
@@ -137,16 +144,9 @@
     padding:10px 12px;
   }
   .dotRow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-  .dot{
-    width:8px;height:8px;border-radius:99px;
-    background:rgba(0,0,0,.18);
-  }
+  .dot{width:8px;height:8px;border-radius:99px;background:rgba(0,0,0,.18)}
   .dot.on{background:#ff2d7a}
-  .tiny{
-    font-size:12px;
-    opacity:.75;
-    font-weight:700;
-  }
+  .tiny{font-size:12px;opacity:.75;font-weight:800}
 
   canvas{position:absolute;inset:0;pointer-events:none}
 </style>
@@ -169,11 +169,9 @@
 
   <div class="msg" id="msg"></div>
 
-  <!-- ✅ Slideshow (shows after YES) -->
+  <!-- ✅ Slideshow -->
   <div class="slideshow" id="slideshow">
-    <div class="slideFrame" id="slideFrame">
-      <!-- images injected by JS -->
-    </div>
+    <div class="slideFrame" id="slideFrame"></div>
     <div class="slideControls">
       <button class="ghostBtn" id="prevSlide">◀</button>
       <div>
@@ -184,6 +182,7 @@
     </div>
   </div>
 
+  <!-- ✅ Date plans -->
   <div class="plan" id="plan">
     <h3 style="margin:0 0 8px;">Okayyyy it’s official 💖</h3>
     <p style="margin:0 0 10px;">Pick a plan (or type your own):</p>
@@ -199,12 +198,12 @@
 
     <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
       <input id="customIdea" type="text" placeholder="Type your own idea..."
-        style="padding:8px 12px; border-radius:999px; border:1px solid #ccc; font-weight:700; min-width:240px;">
+        style="padding:8px 12px; border-radius:999px; border:1px solid #ccc; font-weight:800; min-width:240px;">
       <button class="ghostBtn" id="submitIdea">Use this 💌</button>
       <button class="ghostBtn" id="copyTxt">Copy message ✨</button>
     </div>
 
-    <p id="planMsg" style="margin-top:10px; font-weight:900;"></p>
+    <p id="planMsg" style="margin-top:10px; font-weight:950;"></p>
   </div>
 </div>
 
@@ -218,7 +217,7 @@
   const plan = document.getElementById("plan");
   const planMsg = document.getElementById("planMsg");
 
-  // Slideshow elements
+  // Slideshow
   const slideshow = document.getElementById("slideshow");
   const slideFrame = document.getElementById("slideFrame");
   const dots = document.getElementById("dots");
@@ -311,10 +310,12 @@
     if (confetti.length) requestAnimationFrame(updateConfetti);
   }
 
-  // ✅ Slideshow setup
-  // Replace these with YOUR photo paths or URLs:
+  // ✅ Slideshow photos (GitHub repo files)
   const photos = [
     "photo1.jpg"
+    // Add more later:
+    // "photo2.jpg",
+    // "photo3.jpg"
   ];
 
   let currentSlide = 0;
@@ -343,6 +344,7 @@
 
   function goToSlide(idx) {
     currentSlide = (idx + photos.length) % photos.length;
+
     const imgs = slideFrame.querySelectorAll("img");
     imgs.forEach((im, i) => im.classList.toggle("active", i === currentSlide));
 
@@ -350,8 +352,6 @@
     dotEls.forEach((d, i) => d.classList.toggle("on", i === currentSlide));
 
     slideLabel.textContent = `${currentSlide + 1} / ${photos.length}`;
-
-    // restart autoplay on manual navigation
     startAutoplay();
   }
 
@@ -360,13 +360,12 @@
 
   function startAutoplay() {
     if (slideTimer) clearInterval(slideTimer);
-    slideTimer = setInterval(nextSlide, 2500);
+    if (photos.length > 1) slideTimer = setInterval(nextSlide, 2500);
   }
 
   prevSlideBtn.addEventListener("click", prevSlide);
   nextSlideBtn.addEventListener("click", nextSlide);
 
-  // Pause autoplay if user hovers slideshow
   slideshow.addEventListener("mouseenter", () => slideTimer && clearInterval(slideTimer));
   slideshow.addEventListener("mouseleave", startAutoplay);
 
@@ -379,14 +378,17 @@
     typeText(msg, "Yayyy!! 💖🥰 I knew you'd say yes!");
     burstConfetti();
 
-    // Show slideshow + plan
     slideshow.style.display = "block";
     plan.style.display = "block";
 
-    // Build + autoplay slideshow
     currentSlide = 0;
     renderSlideshow();
     startAutoplay();
+
+    // ✅ scroll a bit so the slideshow shows nicely
+    setTimeout(() => {
+      slideshow.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 200);
   });
 
   noBtn.addEventListener("click", (e) => {
@@ -419,10 +421,15 @@
     });
   });
 
+  const customIdea = document.getElementById("customIdea");
   document.getElementById("submitIdea").addEventListener("click", () => {
-    const idea = document.getElementById("customIdea").value.trim();
+    const idea = customIdea.value.trim();
     if (!idea) { planMsg.textContent = "Type something first 😄"; return; }
     planMsg.textContent = "Perfect 😍 Our plan: " + idea;
+  });
+
+  customIdea.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("submitIdea").click();
   });
 
   document.getElementById("copyTxt").addEventListener("click", async () => {
@@ -435,6 +442,5 @@
     }
   });
 </script>
-
 </body>
 </html>
