@@ -68,7 +68,8 @@
     justify-content:center;
     gap:12px;
     position:relative;
-    min-height:70px;
+    height:76px;              /* ✅ fixed play area for No */
+    margin-bottom:4px;
   }
 
   button{
@@ -81,15 +82,17 @@
   }
 
   #yes{background:#ff2d7a;color:#fff}
+
   #no{
     background:#222;color:#fff;
     position:absolute;
     left:50%;
-    top:70%;
+    top:50%;
     transform:translate(-50%,-50%);
+    will-change:left,top;
   }
 
-  .msg{margin-top:18px;font-weight:850;min-height:24px}
+  .msg{margin-top:14px;font-weight:850;min-height:24px}
 
   .plan{display:none;margin-top:18px}
   .smallBtn{
@@ -121,14 +124,14 @@
     position:relative;
     width:100%;
     aspect-ratio: 16 / 10;
-    background:rgba(0,0,0,.04);
+    background:#0b0b0b;      /* ✅ looks clean behind contain */
   }
   .slideFrame img{
     position:absolute;
     inset:0;
     width:100%;
     height:100%;
-    object-fit:cover; /* change to contain if you want no crop */
+    object-fit:contain;      /* ✅ no crop */
     opacity:0;
     transition:opacity .35s ease;
   }
@@ -159,7 +162,7 @@
   <div class="meterWrap"><div class="meter" id="meter"></div></div>
   <div class="meterLabel" id="meterLabel">Convincing you… 0%</div>
 
-  <div class="btns">
+  <div class="btns" id="btns">
     <button id="yes">Yes 💗</button>
     <button id="no">No 🙃</button>
   </div>
@@ -204,6 +207,7 @@
 
 <script>
   const card = document.getElementById("card");
+  const btns = document.getElementById("btns");
   const yesBtn = document.getElementById("yes");
   const noBtn = document.getElementById("no");
   const msg = document.getElementById("msg");
@@ -226,16 +230,6 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  function moveNoButton() {
-    const padding = 16;
-    const maxLeft = card.clientWidth - noBtn.offsetWidth - padding;
-    const maxTop  = card.clientHeight - noBtn.offsetHeight - padding;
-
-    noBtn.style.left = randomInt(padding, Math.max(padding, maxLeft)) + "px";
-    noBtn.style.top  = randomInt(80, Math.max(80, maxTop)) + "px";
-    noBtn.style.transform = "translate(0,0)";
-  }
-
   function setMeter(pct) {
     meter.style.width = pct + "%";
     meterLabel.textContent = `Convincing you… ${pct}%`;
@@ -248,6 +242,23 @@
       el.textContent += text[i++];
       if (i >= text.length) clearInterval(t);
     }, 25);
+  }
+
+  // ✅ Keep No inside the .btns area (so it never disappears)
+  function moveNoButton() {
+    const padding = 8;
+    const areaW = btns.clientWidth;
+    const areaH = btns.clientHeight;
+
+    const maxLeft = areaW - noBtn.offsetWidth - padding;
+    const maxTop  = areaH - noBtn.offsetHeight - padding;
+
+    const left = randomInt(padding, Math.max(padding, maxLeft));
+    const top  = randomInt(padding, Math.max(padding, maxTop));
+
+    noBtn.style.left = left + "px";
+    noBtn.style.top = top + "px";
+    noBtn.style.transform = "translate(0,0)";
   }
 
   // Floating hearts
@@ -365,7 +376,7 @@
   slideshow.addEventListener("mouseenter", () => slideTimer && clearInterval(slideTimer));
   slideshow.addEventListener("mouseleave", startAutoplay);
 
-  // Main buttons
+  // ✅ YES
   yesBtn.addEventListener("click", () => {
     yesBtn.disabled = true;
     noBtn.disabled = true;
@@ -381,32 +392,20 @@
     renderSlideshow();
     startAutoplay();
 
-    setTimeout(() => {
-      slideshow.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }, 200);
+    setTimeout(() => slideshow.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
   });
 
+  // ✅ NO: move on hover/click (no “auto click” counting)
   noBtn.addEventListener("click", (e) => {
     e.preventDefault();
     noCount++;
     setMeter(Math.min(noCount * 18, 95));
     moveNoButton();
-
     yesBtn.style.transform = `scale(${1 + Math.min(0.45, noCount * 0.06)})`;
-
-    if (noCount >= 7) {
-      msg.textContent = "Okay we’re pretending you said YES 😌💗";
-      setTimeout(() => yesBtn.click(), 650);
-    }
   });
 
   noBtn.addEventListener("mouseenter", () => {
-    if (!noBtn.disabled) {
-      noCount++;
-      setMeter(Math.min(noCount * 18, 95));
-      moveNoButton();
-      yesBtn.style.transform = `scale(${1 + Math.min(0.45, noCount * 0.06)})`;
-    }
+    if (!noBtn.disabled) moveNoButton();
   });
 
   // Date options + custom idea
