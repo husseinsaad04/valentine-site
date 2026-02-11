@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Valentine?</title>
   <style>
-    :root { color-scheme: light; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -14,25 +13,28 @@
       place-items: center;
       background: linear-gradient(135deg, #ffe1ef, #fff7e1);
     }
+
     .card {
       width: min(520px, 92vw);
       padding: 28px;
       border-radius: 18px;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.9);
       box-shadow: 0 10px 30px rgba(0,0,0,0.12);
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-    h1 { margin: 0 0 14px; font-size: 28px; }
-    p { margin: 0 0 18px; opacity: 0.75; }
+
+    h1 { margin: 0 0 10px; font-size: 28px; }
+    h2 { margin: 0 0 20px; font-size: 22px; font-weight: 600; }
+
     .btns {
       display: flex;
       gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-top: 10px;
     }
+
     button {
       border: 0;
       padding: 12px 18px;
@@ -41,17 +43,15 @@
       font-size: 16px;
       cursor: pointer;
       transition: transform 120ms ease;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
     }
-    button:active { transform: scale(0.97); }
+
+    button:active { transform: scale(0.95); }
 
     #yes {
       background: #ff2d7a;
       color: white;
     }
 
-    /* The "No" button is positioned inside the card so it can run away */
     #no {
       background: #222;
       color: white;
@@ -62,31 +62,24 @@
     }
 
     .msg {
-      margin-top: 16px;
+      margin-top: 20px;
       font-weight: 700;
       font-size: 18px;
       min-height: 24px;
-    }
-    .tiny {
-      font-size: 12px;
-      opacity: 0.6;
-      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="card" id="card">
-    <h1>Will you be my Valentine? 💘</h1>
-    <p>Choose wisely 😌</p>
+    <h1>Xhensila ❤️</h1>
+    <h2>Will you be my Valentine? 💘</h2>
 
     <div class="btns">
       <button id="yes">Yes 💗</button>
-      <!-- "No" is absolutely positioned so it can move -->
       <button id="no">No 🙃</button>
     </div>
 
     <div class="msg" id="msg"></div>
-    <div class="tiny">Tip: try tapping “No” 👀</div>
   </div>
 
   <script>
@@ -95,18 +88,14 @@
     const noBtn = document.getElementById("no");
     const msg = document.getElementById("msg");
 
-    // Toggle this to true if you want a NEW "No" to spawn each time too
-    const SPAWN_EXTRA_NO = false;
-
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function moveNoButton(btn) {
+    function moveNoButton() {
       const cardRect = card.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
 
-      // Keep button inside the card padding-ish
       const padding = 16;
       const maxLeft = cardRect.width - btnRect.width - padding;
       const maxTop  = cardRect.height - btnRect.height - padding;
@@ -114,44 +103,25 @@
       const left = randomInt(padding, Math.max(padding, Math.floor(maxLeft)));
       const top  = randomInt(Math.floor(cardRect.height * 0.45), Math.max(padding, Math.floor(maxTop)));
 
-      btn.style.left = left + "px";
-      btn.style.top  = top + "px";
-      btn.style.transform = "translate(0, 0)";
-    }
-
-    function spawnExtraNo() {
-      const extra = noBtn.cloneNode(true);
-      extra.id = ""; // avoid duplicate ids
-      extra.textContent = "No 🙃";
-      card.appendChild(extra);
-
-      // Make it run away too
-      extra.addEventListener("click", (e) => {
-        e.preventDefault();
-        moveNoButton(extra);
-      });
-
-      // Place it somewhere random right away
-      moveNoButton(extra);
+      noBtn.style.left = left + "px";
+      noBtn.style.top  = top + "px";
+      noBtn.style.transform = "translate(0, 0)";
     }
 
     yesBtn.addEventListener("click", () => {
-      msg.textContent = "Yayyy!! 💖🥰";
-      // Disable all No buttons
+      msg.textContent = "Yayyy!! 💖🥰 I knew you'd say yes!";
       document.querySelectorAll("button").forEach(b => b.disabled = true);
       yesBtn.disabled = false;
       yesBtn.textContent = "YES ✅";
     });
 
-    // On click: move (and optionally spawn another)
     noBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      moveNoButton(noBtn);
-      if (SPAWN_EXTRA_NO) spawnExtraNo();
+      moveNoButton();
     });
 
-    // Optional: also run away when she tries to hover (desktop)
-    noBtn.addEventListener("mouseenter", () => moveNoButton(noBtn));
+    noBtn.addEventListener("mouseenter", moveNoButton);
   </script>
 </body>
 </html>
+
