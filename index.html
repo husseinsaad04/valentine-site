@@ -1,405 +1,304 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Valentine?</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      height: 100vh;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, #ffe1ef, #fff7e1);
-      overflow: hidden;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Valentine?</title>
 
-    /* Floating hearts background */
-    .heart {
-      position: absolute;
-      bottom: -40px;
-      font-size: 18px;
-      opacity: 0.75;
-      animation: floatUp linear forwards;
-      pointer-events: none;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
-    }
-    @keyframes floatUp {
-      from { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.0; }
-      10% { opacity: 0.75; }
-      to { transform: translateY(-110vh) translateX(var(--drift)) rotate(var(--rot)); opacity: 0; }
-    }
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ffe1ef, #fff7e1);
+  overflow: hidden;
+}
 
-    .card {
-      width: min(520px, 92vw);
-      padding: 28px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.92);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(6px);
-    }
+.heart {
+  position: absolute;
+  bottom: -40px;
+  font-size: 18px;
+  opacity: 0.7;
+  animation: floatUp linear forwards;
+  pointer-events: none;
+}
+@keyframes floatUp {
+  from { transform: translateY(0); opacity: 0; }
+  10% { opacity: .7; }
+  to { transform: translateY(-110vh); opacity: 0; }
+}
 
-    h1 { margin: 0 0 10px; font-size: 28px; }
-    h2 { margin: 0 0 14px; font-size: 22px; font-weight: 650; }
+.card {
+  width: min(520px, 92vw);
+  padding: 28px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  text-align: center;
+  position: relative;
+}
 
-    .meterWrap{
-      margin: 10px auto 18px;
-      width: min(360px, 90%);
-      height: 10px;
-      background: rgba(0,0,0,0.07);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .meter{
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #ff2d7a, #ff7aa8);
-      border-radius: 999px;
-      transition: width 220ms ease;
-    }
-    .meterLabel{
-      font-size: 13px;
-      opacity: 0.75;
-      margin-top: 6px;
-      font-weight: 650;
-    }
+h1 { margin: 0 0 10px; font-size: 28px; }
+h2 { margin: 0 0 14px; font-size: 22px; }
 
-    .btns {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      position: relative;
-      min-height: 70px; /* helps with absolute 'No' */
-    }
+.meterWrap {
+  width: 90%;
+  height: 10px;
+  margin: 0 auto 8px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.meter {
+  height: 100%;
+  width: 0%;
+  background: #ff2d7a;
+  transition: width 0.2s;
+}
+.meterLabel {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
 
-    button {
-      border: 0;
-      padding: 12px 18px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-      transition: transform 120ms ease, filter 120ms ease;
-      user-select: none;
-    }
-    button:active { transform: scale(0.95); }
+.btns {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  min-height: 70px;
+}
 
-    #yes {
-      background: #ff2d7a;
-      color: white;
-      box-shadow: 0 10px 18px rgba(255,45,122,0.25);
-    }
+button {
+  border: none;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    #no {
-      background: #222;
-      color: white;
-      position: absolute;
-      left: 50%;
-      top: 70%;
-      transform: translate(-50%, -50%);
-      will-change: left, top, transform;
-    }
+#yes {
+  background: #ff2d7a;
+  color: white;
+}
 
-    #no.shake {
-      animation: shake 220ms ease-in-out;
-    }
-    @keyframes shake {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      25% { transform: translate(-50%, -50%) rotate(-3deg); }
-      50% { transform: translate(-50%, -50%) rotate(3deg); }
-      75% { transform: translate(-50%, -50%) rotate(-2deg); }
-      100% { transform: translate(-50%, -50%) rotate(0deg); }
-    }
+#no {
+  background: #222;
+  color: white;
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  transform: translate(-50%, -50%);
+}
 
-    .msg {
-      margin-top: 18px;
-      font-weight: 750;
-      font-size: 18px;
-      min-height: 28px;
-    }
+.msg {
+  margin-top: 18px;
+  font-weight: bold;
+  min-height: 24px;
+}
 
-    .plan {
-      margin-top: 16px;
-      display: none;
-      padding: 14px 16px;
-      border-radius: 14px;
-      background: rgba(255,45,122,0.08);
-      border: 1px solid rgba(255,45,122,0.18);
-      text-align: left;
-    }
-    .plan h3 { margin: 0 0 8px; font-size: 16px; }
-    .plan p { margin: 0 0 10px; font-size: 14px; opacity: 0.85; line-height: 1.35; }
-    .plan .row { display: flex; gap: 10px; flex-wrap: wrap; }
+.plan {
+  display: none;
+  margin-top: 18px;
+}
 
-    .smallBtn{
-      background: #111;
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .ghostBtn{
-      background: transparent;
-      border: 2px solid rgba(0,0,0,0.2);
-      color: #111;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 14px;
-      cursor: pointer;
-    }
+.smallBtn {
+  background: #111;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 999px;
+  margin: 4px;
+}
 
-    /* Confetti canvas */
-    canvas#confetti {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-  </style>
+.ghostBtn {
+  background: transparent;
+  border: 2px solid rgba(0,0,0,0.3);
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+</style>
 </head>
+
 <body>
-  <div class="card" id="card">
-    <canvas id="confetti"></canvas>
 
-    <h1>Xhensila ❤️</h1>
-    <h2 id="q">Will you be my Valentine? 💘</h2>
+<div class="card" id="card">
+<canvas id="confetti"></canvas>
 
-    <div class="meterWrap" aria-hidden="true">
-      <div class="meter" id="meter"></div>
-    </div>
-    <div class="meterLabel" id="meterLabel">Convincing you… 0%</div>
+<h1>Xhensila ❤️</h1>
+<h2>Will you be my Valentine? 💘</h2>
 
-    <div class="btns" id="btns">
-      <button id="yes">Yes 💗</button>
-      <button id="no">No 🙃</button>
-    </div>
+<div class="meterWrap">
+<div class="meter" id="meter"></div>
+</div>
+<div class="meterLabel" id="meterLabel">Convincing you… 0%</div>
 
-    <div class="msg" id="msg"></div>
+<div class="btns">
+<button id="yes">Yes 💗</button>
+<button id="no">No 🙃</button>
+</div>
 
-    <div class="plan" id="plan">
-      <h3>Okayyyy it’s official 💖</h3>
-      <p>Pick our little plan (or we can make our own):</p>
-      <div class="row">
-        <button class="smallBtn" id="plan1">Dinner + dessert 🍝🍰</button>
-        <button class="smallBtn" id="plan2">Movie night + snacks 🎬🍿</button>
-        <button class="ghostBtn" id="copyTxt">Copy cute message ✨</button>
-      </div>
-      <p id="planMsg" style="margin-top:10px; font-weight:750;"></p>
-    </div>
-  </div>
+<div class="msg" id="msg"></div>
 
-  <script>
-    const card = document.getElementById("card");
-    const btns = document.getElementById("btns");
-    const yesBtn = document.getElementById("yes");
-    const noBtn = document.getElementById("no");
-    const msg = document.getElementById("msg");
-    const meter = document.getElementById("meter");
-    const meterLabel = document.getElementById("meterLabel");
-    const plan = document.getElementById("plan");
-    const planMsg = document.getElementById("planMsg");
+<div class="plan" id="plan">
+<h3>Okayyyy it’s official 💖</h3>
+<p>Pick a plan (or type your own):</p>
 
-    const plan1 = document.getElementById("plan1");
-    const plan2 = document.getElementById("plan2");
-    const copyTxt = document.getElementById("copyTxt");
+<div>
+<button class="smallBtn planOpt" data-idea="Dinner + dessert 🍝🍰">Dinner + dessert 🍝🍰</button>
+<button class="smallBtn planOpt" data-idea="Movie night + snacks 🎬🍿">Movie night + snacks 🎬🍿</button>
+<button class="smallBtn planOpt" data-idea="Coffee + walk + pics ☕️🚶‍♀️📸">Coffee + walk + pics ☕️🚶‍♀️📸</button>
+<button class="smallBtn planOpt" data-idea="Bowling + arcade 🎳🕹️">Bowling + arcade 🎳🕹️</button>
+<button class="smallBtn planOpt" data-idea="Picnic (indoors if cold) 🧺💗">Picnic 🧺💗</button>
+<button class="smallBtn planOpt" data-idea="Mini road trip + playlist 🚗🎶">Mini road trip 🚗🎶</button>
+</div>
 
-    let noCount = 0;
-    const plead = [
-      "Are you sure? 🥺",
-      "Wait… that’s illegal 😭",
-      "I brought snacks though 😔",
-      "I’ll be extra nice 😇",
-      "Okay okay… last chance 😵‍💫",
-      "You’re too cute to say no 😤💗"
-    ];
+<div style="margin-top:10px;">
+<input id="customIdea" type="text" placeholder="Type your own idea..."
+style="padding:8px 12px; border-radius:999px; border:1px solid #ccc;">
+<button class="ghostBtn" id="submitIdea">Use this 💌</button>
+<button class="ghostBtn" id="copyTxt">Copy message ✨</button>
+</div>
 
-    function randomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+<p id="planMsg" style="margin-top:10px; font-weight:bold;"></p>
+</div>
+</div>
 
-    function clamp(n, min, max) {
-      return Math.max(min, Math.min(max, n));
-    }
+<script>
+const card = document.getElementById("card");
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("msg");
+const meter = document.getElementById("meter");
+const meterLabel = document.getElementById("meterLabel");
+const plan = document.getElementById("plan");
+const planMsg = document.getElementById("planMsg");
 
-    function setMeter(pct) {
-      meter.style.width = pct + "%";
-      meterLabel.textContent = `Convincing you… ${pct}%`;
-    }
+let noCount = 0;
 
-    function moveNoButton() {
-      const cardRect = card.getBoundingClientRect();
-      const btnRect = noBtn.getBoundingClientRect();
+function randomInt(min, max) {
+return Math.floor(Math.random()*(max-min+1))+min;
+}
 
-      const padding = 16;
-      const maxLeft = cardRect.width - btnRect.width - padding;
-      const maxTop  = cardRect.height - btnRect.height - padding;
+function moveNoButton() {
+const padding = 16;
+const maxLeft = card.clientWidth - noBtn.offsetWidth - padding;
+const maxTop = card.clientHeight - noBtn.offsetHeight - padding;
 
-      const left = randomInt(padding, Math.max(padding, Math.floor(maxLeft)));
-      const top  = randomInt(Math.floor(cardRect.height * 0.45), Math.max(padding, Math.floor(maxTop)));
+noBtn.style.left = randomInt(padding, maxLeft)+"px";
+noBtn.style.top = randomInt(80, maxTop)+"px";
+noBtn.style.transform="translate(0,0)";
+}
 
-      noBtn.style.left = left + "px";
-      noBtn.style.top  = top + "px";
-      noBtn.style.transform = "translate(0, 0)";
+function setMeter(pct){
+meter.style.width=pct+"%";
+meterLabel.textContent=`Convincing you… ${pct}%`;
+}
 
-      noBtn.classList.remove("shake");
-      void noBtn.offsetWidth; // restart animation
-      noBtn.classList.add("shake");
-    }
+function typeText(el,text){
+el.textContent="";
+let i=0;
+const t=setInterval(()=>{
+el.textContent+=text[i++];
+if(i>=text.length) clearInterval(t);
+},25);
+}
 
-    // Typewriter effect
-    function typeText(el, text, speed = 26) {
-      el.textContent = "";
-      let i = 0;
-      const t = setInterval(() => {
-        el.textContent += text[i++];
-        if (i >= text.length) clearInterval(t);
-      }, speed);
-    }
+yesBtn.addEventListener("click",()=>{
+yesBtn.disabled=true;
+noBtn.disabled=true;
+setMeter(100);
+typeText(msg,"Yayyy!! 💖🥰 I knew you'd say yes!");
+plan.style.display="block";
+burstConfetti();
+});
 
-    // Floating hearts background
-    function spawnHeart() {
-      const h = document.createElement("div");
-      h.className = "heart";
-      h.textContent = Math.random() < 0.6 ? "💗" : (Math.random() < 0.5 ? "💘" : "💖");
-      h.style.left = randomInt(0, 100) + "vw";
-      h.style.setProperty("--drift", randomInt(-40, 40) + "px");
-      h.style.setProperty("--rot", randomInt(-80, 80) + "deg");
-      const dur = randomInt(4500, 9000);
-      h.style.animationDuration = dur + "ms";
-      h.style.fontSize = randomInt(14, 28) + "px";
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), dur);
-    }
-    setInterval(spawnHeart, 450);
+noBtn.addEventListener("click",(e)=>{
+e.preventDefault();
+noCount++;
+setMeter(Math.min(noCount*18,95));
+moveNoButton();
+yesBtn.style.transform=`scale(${1+noCount*0.06})`;
+if(noCount>=7){
+msg.textContent="Okay we’re pretending you said YES 😌💗";
+setTimeout(()=>yesBtn.click(),600);
+}
+});
 
-    // Confetti (tiny simple canvas)
-    const canvas = document.getElementById("confetti");
-    const ctx = canvas.getContext("2d");
-    let confetti = [];
-    let confettiRunning = false;
+document.querySelectorAll(".planOpt").forEach(btn=>{
+btn.addEventListener("click",()=>{
+planMsg.textContent="Perfect 😍 Our plan: "+btn.dataset.idea;
+});
+});
 
-    function resizeCanvas() {
-      canvas.width = card.clientWidth * devicePixelRatio;
-      canvas.height = card.clientHeight * devicePixelRatio;
-      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-    }
-    new ResizeObserver(resizeCanvas).observe(card);
-    resizeCanvas();
+document.getElementById("submitIdea").addEventListener("click",()=>{
+const idea=document.getElementById("customIdea").value.trim();
+if(!idea){ planMsg.textContent="Type something first 😄"; return;}
+planMsg.textContent="Perfect 😍 Our plan: "+idea;
+});
 
-    function burstConfetti() {
-      confetti = [];
-      const colors = ["#ff2d7a", "#ff7aa8", "#ffd166", "#06d6a0", "#118ab2", "#8338ec"];
-      for (let i = 0; i < 180; i++) {
-        confetti.push({
-          x: canvas.clientWidth / 2,
-          y: canvas.clientHeight / 2,
-          vx: (Math.random() - 0.5) * 10,
-          vy: (Math.random() - 0.9) * 10,
-          g: 0.18 + Math.random() * 0.12,
-          r: 2 + Math.random() * 3,
-          c: colors[Math.floor(Math.random() * colors.length)],
-          a: 1
-        });
-      }
-      confettiRunning = true;
-      requestAnimationFrame(stepConfetti);
-    }
+document.getElementById("copyTxt").addEventListener("click",async()=>{
+try{
+await navigator.clipboard.writeText("Happy Valentine’s Day 💖 "+planMsg.textContent);
+planMsg.textContent="Copied ✅";
+}catch{
+planMsg.textContent="Copy blocked by browser 😭";
+}
+});
 
-    function stepConfetti() {
-      if (!confettiRunning) return;
-      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+function spawnHeart(){
+const h=document.createElement("div");
+h.className="heart";
+h.textContent="💗";
+h.style.left=randomInt(0,100)+"vw";
+h.style.animationDuration=randomInt(4000,8000)+"ms";
+document.body.appendChild(h);
+setTimeout(()=>h.remove(),8000);
+}
+setInterval(spawnHeart,500);
 
-      confetti.forEach(p => {
-        p.vy += p.g;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.a -= 0.012;
+const canvas=document.getElementById("confetti");
+const ctx=canvas.getContext("2d");
+canvas.width=card.clientWidth;
+canvas.height=card.clientHeight;
+let confetti=[];
 
-        ctx.globalAlpha = Math.max(0, p.a);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.c;
-        ctx.fill();
-      });
+function burstConfetti(){
+confetti=[];
+for(let i=0;i<150;i++){
+confetti.push({
+x:canvas.width/2,
+y:canvas.height/2,
+vx:(Math.random()-0.5)*8,
+vy:(Math.random()-1)*8,
+g:0.2,
+a:1
+});
+}
+requestAnimationFrame(updateConfetti);
+}
 
-      ctx.globalAlpha = 1;
-      confetti = confetti.filter(p => p.a > 0 && p.y < canvas.clientHeight + 20);
+function updateConfetti(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+confetti.forEach(p=>{
+p.vy+=p.g;
+p.x+=p.vx;
+p.y+=p.vy;
+p.a-=0.01;
+ctx.globalAlpha=p.a;
+ctx.fillStyle="#ff2d7a";
+ctx.fillRect(p.x,p.y,4,4);
+});
+confetti=confetti.filter(p=>p.a>0);
+if(confetti.length) requestAnimationFrame(updateConfetti);
+}
+</script>
 
-      if (confetti.length) requestAnimationFrame(stepConfetti);
-      else confettiRunning = false;
-    }
-
-    function lockButtons() {
-      document.querySelectorAll("button").forEach(b => b.disabled = true);
-      yesBtn.disabled = false;
-    }
-
-    yesBtn.addEventListener("click", async () => {
-      lockButtons();
-      yesBtn.textContent = "YES ✅";
-      setMeter(100);
-      burstConfetti();
-
-      typeText(msg, "Yayyy!! 💖🥰 I knew you'd say yes!", 22);
-
-      plan.style.display = "block";
-    });
-
-    function handleNo() {
-      noCount++;
-      const pct = clamp(noCount * 18, 0, 95);
-      setMeter(pct);
-
-      msg.textContent = plead[(noCount - 1) % plead.length];
-      moveNoButton();
-
-      // Make "Yes" more tempting each time 😈
-      const scale = 1 + Math.min(0.35, noCount * 0.06);
-      yesBtn.style.transform = `scale(${scale})`;
-      yesBtn.style.filter = `brightness(${1 + Math.min(0.25, noCount * 0.05)})`;
-
-      // After enough "No"s, gently force the outcome
-      if (noCount >= 7) {
-        msg.textContent = "Okay we’re gonna pretend you meant YES 😌💗";
-        setTimeout(() => yesBtn.click(), 650);
-      }
-    }
-
-    noBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      handleNo();
-    });
-
-    noBtn.addEventListener("mouseenter", () => {
-      handleNo();
-    });
-
-    plan1.addEventListener("click", () => {
-      planMsg.textContent = "Dinner + dessert it is 😋💗 I’ll plan it.";
-    });
-
-    plan2.addEventListener("click", () => {
-      planMsg.textContent = "Movie night + snacks 🥰 I’m picking the snacks.";
-    });
-
-    copyTxt.addEventListener("click", async () => {
-      const text = "Happy Valentine’s Day 💖 I’m really happy you’re my person 🥰";
-      try {
-        await navigator.clipboard.writeText(text);
-        planMsg.textContent = "Copied ✅ Send it to me 😄";
-      } catch {
-        planMsg.textContent = "Couldn’t copy (browser blocked it). Still cute though 😭💗";
-      }
-    });
-  </script>
 </body>
 </html>
