@@ -48,15 +48,16 @@
     flex-direction:column;
     gap:14px;
   }
-  .side img{
-  width:100%;
-  height:170px;
-  object-fit:contain;        /* 🔥 no cropping */
-  object-position:center;    /* center the image */
-  border-radius:18px;
-  background:#fff;           /* clean background around image */
-}
-
+ 
+ .side img{
+    width:100%;
+    height:170px;
+    object-fit:cover;
+    border-radius:18px;
+    box-shadow:0 10px 22px rgba(0,0,0,.08);
+    background:#fff;
+  }    /* clean background around image */
+ 
   @media (max-width: 900px){
     .layout{ grid-template-columns:1fr; }
     .side{
