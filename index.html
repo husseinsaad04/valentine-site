@@ -33,8 +33,48 @@
     to{transform:translateY(-110vh);opacity:0}
   }
 
+  /* ✅ NEW: page layout (left photos | card | right photos) */
+  .layout{
+    width: min(1100px, 96vw);
+    display:grid;
+    grid-template-columns: 220px 1fr 220px;
+    gap:18px;
+    align-items:start;
+  }
+
+  .side{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .side img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+    border-radius:16px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    border:1px solid rgba(0,0,0,.06);
+    background:#fff;
+  }
+
+  /* Mobile: stack, side photos scroll horizontally */
+  @media (max-width: 900px){
+    .layout{ grid-template-columns: 1fr; }
+    .side{
+      flex-direction:row;
+      overflow-x:auto;
+      padding-bottom:6px;
+      justify-content:flex-start;
+    }
+    .side img{
+      flex:0 0 160px;
+      height:140px;
+    }
+  }
+
   .card{
-    width:min(560px,92vw);
+    width:100%;
     padding:28px;
     border-radius:18px;
     background:rgba(255,255,255,.95);
@@ -68,7 +108,7 @@
     justify-content:center;
     gap:12px;
     position:relative;
-    height:76px;              /* ✅ fixed play area for No */
+    height:76px;
     margin-bottom:4px;
   }
 
@@ -110,7 +150,6 @@
     font-weight:850;
   }
 
-  /* Slideshow */
   .slideshow{
     display:none;
     margin-top:16px;
@@ -124,14 +163,14 @@
     position:relative;
     width:100%;
     aspect-ratio: 16 / 10;
-    background:#0b0b0b;      /* ✅ looks clean behind contain */
+    background:#0b0b0b;
   }
   .slideFrame img{
     position:absolute;
     inset:0;
     width:100%;
     height:100%;
-    object-fit:contain;      /* ✅ no crop */
+    object-fit:contain;
     opacity:0;
     transition:opacity .35s ease;
   }
@@ -153,56 +192,75 @@
 </head>
 
 <body>
-<div class="card" id="card">
-  <canvas id="confetti"></canvas>
 
-  <h1>Xhensila ❤️</h1>
-  <h2>Will you be my Valentine? 💘</h2>
+<div class="layout">
+  <!-- ✅ LEFT SIDE PHOTOS -->
+  <aside class="side left" aria-label="Side photos left">
+    <img src="Me1.jpg" alt="Me 1">
+    <img src="Me2.jpg" alt="Me 2">
+    <img src="Me3.jpg" alt="Me 3">
+    <img src="Me4.jpg" alt="Me 3">
+  </aside>
 
-  <div class="meterWrap"><div class="meter" id="meter"></div></div>
-  <div class="meterLabel" id="meterLabel">Convincing you… 0%</div>
+  <!-- ✅ YOUR CARD -->
+  <div class="card" id="card">
+    <canvas id="confetti"></canvas>
 
-  <div class="btns" id="btns">
-    <button id="yes">Yes 💗</button>
-    <button id="no">No 🙃</button>
-  </div>
+    <h1>Xhensila ❤️</h1>
+    <h2>Will you be my Valentine? 💘</h2>
 
-  <div class="msg" id="msg"></div>
+    <div class="meterWrap"><div class="meter" id="meter"></div></div>
+    <div class="meterLabel" id="meterLabel">Convincing you… 0%</div>
 
-  <div class="slideshow" id="slideshow">
-    <div class="slideFrame" id="slideFrame"></div>
-    <div class="slideControls">
-      <button class="ghostBtn" id="prevSlide">◀</button>
-      <div>
-        <div class="dotRow" id="dots"></div>
-        <div class="tiny" id="slideLabel">1 / 1</div>
+    <div class="btns" id="btns">
+      <button id="yes">Yes 💗</button>
+      <button id="no">No 🙃</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="slideshow" id="slideshow">
+      <div class="slideFrame" id="slideFrame"></div>
+      <div class="slideControls">
+        <button class="ghostBtn" id="prevSlide">◀</button>
+        <div>
+          <div class="dotRow" id="dots"></div>
+          <div class="tiny" id="slideLabel">1 / 1</div>
+        </div>
+        <button class="ghostBtn" id="nextSlide">▶</button>
       </div>
-      <button class="ghostBtn" id="nextSlide">▶</button>
+    </div>
+
+    <div class="plan" id="plan">
+      <h3 style="margin:0 0 8px;">Okayyyy it’s official 💖</h3>
+      <p style="margin:0 0 10px;">Pick a plan (or type your own):</p>
+
+      <div>
+        <button class="smallBtn planOpt" data-idea="Dinner + dessert 🍝🍰">Dinner + dessert 🍝🍰</button>
+        <button class="smallBtn planOpt" data-idea="Movie night + snacks 🎬🍿">Movie night + snacks 🎬🍿</button>
+        <button class="smallBtn planOpt" data-idea="Coffee + walk + pics ☕️🚶‍♀️📸">Coffee + walk + pics ☕️🚶‍♀️📸</button>
+        <button class="smallBtn planOpt" data-idea="Bowling + arcade 🎳🕹️">Bowling + arcade 🎳🕹️</button>
+        <button class="smallBtn planOpt" data-idea="Picnic (indoors if cold) 🧺💗">Picnic 🧺💗</button>
+        <button class="smallBtn planOpt" data-idea="Mini road trip + playlist 🚗🎶">Mini road trip 🚗🎶</button>
+      </div>
+
+      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <input id="customIdea" type="text" placeholder="Type your own idea..."
+          style="padding:8px 12px; border-radius:999px; border:1px solid #ccc; font-weight:800; min-width:240px;">
+        <button class="ghostBtn" id="submitIdea">Use this 💌</button>
+        <button class="ghostBtn" id="copyTxt">Copy message ✨</button>
+      </div>
+
+      <p id="planMsg" style="margin-top:10px; font-weight:950;"></p>
     </div>
   </div>
 
-  <div class="plan" id="plan">
-    <h3 style="margin:0 0 8px;">Okayyyy it’s official 💖</h3>
-    <p style="margin:0 0 10px;">Pick a plan (or type your own):</p>
-
-    <div>
-      <button class="smallBtn planOpt" data-idea="Dinner + dessert 🍝🍰">Dinner + dessert 🍝🍰</button>
-      <button class="smallBtn planOpt" data-idea="Movie night + snacks 🎬🍿">Movie night + snacks 🎬🍿</button>
-      <button class="smallBtn planOpt" data-idea="Coffee + walk + pics ☕️🚶‍♀️📸">Coffee + walk + pics ☕️🚶‍♀️📸</button>
-      <button class="smallBtn planOpt" data-idea="Bowling + arcade 🎳🕹️">Bowling + arcade 🎳🕹️</button>
-      <button class="smallBtn planOpt" data-idea="Picnic (indoors if cold) 🧺💗">Picnic 🧺💗</button>
-      <button class="smallBtn planOpt" data-idea="Mini road trip + playlist 🚗🎶">Mini road trip 🚗🎶</button>
-    </div>
-
-    <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-      <input id="customIdea" type="text" placeholder="Type your own idea..."
-        style="padding:8px 12px; border-radius:999px; border:1px solid #ccc; font-weight:800; min-width:240px;">
-      <button class="ghostBtn" id="submitIdea">Use this 💌</button>
-      <button class="ghostBtn" id="copyTxt">Copy message ✨</button>
-    </div>
-
-    <p id="planMsg" style="margin-top:10px; font-weight:950;"></p>
-  </div>
+  <!-- ✅ RIGHT SIDE PHOTOS -->
+  <aside class="side right" aria-label="Side photos right">
+    <img src="me4.jpg" alt="Me 4">
+    <img src="me5.jpg" alt="Me 5">
+    <img src="me6.jpg" alt="Me 6">
+  </aside>
 </div>
 
 <script>
@@ -216,7 +274,6 @@
   const plan = document.getElementById("plan");
   const planMsg = document.getElementById("planMsg");
 
-  // Slideshow
   const slideshow = document.getElementById("slideshow");
   const slideFrame = document.getElementById("slideFrame");
   const dots = document.getElementById("dots");
@@ -244,7 +301,6 @@
     }, 25);
   }
 
-  // ✅ Keep No inside the .btns area (so it never disappears)
   function moveNoButton() {
     const padding = 8;
     const areaW = btns.clientWidth;
@@ -261,7 +317,6 @@
     noBtn.style.transform = "translate(0,0)";
   }
 
-  // Floating hearts
   function spawnHeart() {
     const h = document.createElement("div");
     h.className = "heart";
@@ -274,7 +329,6 @@
   }
   setInterval(spawnHeart, 500);
 
-  // Confetti
   const canvas = document.getElementById("confetti");
   const ctx = canvas.getContext("2d");
   function resizeCanvas(){
@@ -316,7 +370,6 @@
     if (confetti.length) requestAnimationFrame(updateConfetti);
   }
 
-  // ✅ Your EXACT GitHub filenames
   const photos = [
     "photo1.jpg",
     "photo2.jpeg",
@@ -376,7 +429,6 @@
   slideshow.addEventListener("mouseenter", () => slideTimer && clearInterval(slideTimer));
   slideshow.addEventListener("mouseleave", startAutoplay);
 
-  // ✅ YES
   yesBtn.addEventListener("click", () => {
     yesBtn.disabled = true;
     noBtn.disabled = true;
@@ -395,7 +447,6 @@
     setTimeout(() => slideshow.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
   });
 
-  // ✅ NO: move on hover/click (no “auto click” counting)
   noBtn.addEventListener("click", (e) => {
     e.preventDefault();
     noCount++;
@@ -408,7 +459,6 @@
     if (!noBtn.disabled) moveNoButton();
   });
 
-  // Date options + custom idea
   document.querySelectorAll(".planOpt").forEach(btn => {
     btn.addEventListener("click", () => {
       planMsg.textContent = "Perfect 😍 Our plan: " + btn.dataset.idea;
