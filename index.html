@@ -6,132 +6,199 @@
 <title>Valentine?</title>
 
 <style>
-*{ box-sizing:border-box; }
+  *{ box-sizing:border-box; }
 
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  background:linear-gradient(135deg,#ffe1ef,#fff7e1);
-  padding:24px 0;
-  overflow-x:hidden;
-}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:linear-gradient(135deg,#ffe1ef,#fff7e1);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:24px 0;
+  }
 
-/* ===== Layout ===== */
+  .heart{
+    position:absolute;
+    bottom:-40px;
+    font-size:18px;
+    opacity:.7;
+    animation:floatUp linear forwards;
+    pointer-events:none;
+  }
+  @keyframes floatUp{
+    from{transform:translateY(0);opacity:0}
+    10%{opacity:.7}
+    to{transform:translateY(-110vh);opacity:0}
+  }
 
-.layout{
-  width:min(1200px,96vw);
-  display:grid;
-  grid-template-columns:220px minmax(560px,1fr) 220px;
-  gap:20px;
-  align-items:start;
-}
-
-.side{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-
-.side img{
-  width:100%;
-  height:170px;
-  object-fit:cover;
-  border-radius:18px;
-  box-shadow:0 10px 20px rgba(0,0,0,.08);
-  background:#fff;
-}
-
-/* Mobile */
-@media (max-width: 900px){
-  .layout{ grid-template-columns:1fr; }
+  /* ✅ Layout: side photos | card | side photos */
+  .layout{
+    width:min(1200px,96vw);
+    display:grid;
+    grid-template-columns:220px minmax(560px,1fr) 220px;
+    gap:20px;
+    align-items:start;
+  }
   .side{
-    flex-direction:row;
-    overflow-x:auto;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
   }
   .side img{
-    flex:0 0 160px;
-    height:150px;
+    width:100%;
+    height:170px;
+    object-fit:cover;
+    border-radius:18px;
+    box-shadow:0 10px 22px rgba(0,0,0,.08);
+    background:#fff;
   }
-}
+  @media (max-width: 900px){
+    .layout{ grid-template-columns:1fr; }
+    .side{
+      flex-direction:row;
+      overflow-x:auto;
+      padding-bottom:6px;
+    }
+    .side img{
+      flex:0 0 160px;
+      height:150px;
+    }
+  }
 
-/* ===== Card ===== */
+  .card{
+    width:100%;
+    padding:28px;
+    border-radius:18px;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
 
-.card{
-  width:100%;
-  padding:28px;
-  border-radius:20px;
-  background:#fff;
-  box-shadow:0 12px 30px rgba(0,0,0,.12);
-  text-align:center;
-  position:relative;
-}
+  h1{margin:0 0 10px;font-size:28px}
+  h2{margin:0 0 14px;font-size:22px}
 
-h1{margin:0 0 10px;font-size:28px}
-h2{margin:0 0 14px;font-size:22px}
+  .meterWrap{
+    width:90%;
+    height:10px;
+    margin:0 auto 8px;
+    background:rgba(0,0,0,.1);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .meter{
+    height:100%;
+    width:0%;
+    background:#ff2d7a;
+    transition:width .2s;
+  }
+  .meterLabel{font-size:13px;margin-bottom:16px;font-weight:750;opacity:.8}
 
-.meterWrap{
-  width:90%;
-  height:10px;
-  margin:0 auto 8px;
-  background:rgba(0,0,0,.1);
-  border-radius:999px;
-  overflow:hidden;
-}
-.meter{
-  height:100%;
-  width:0%;
-  background:#ff2d7a;
-  transition:width .2s;
-}
-.meterLabel{font-size:13px;margin-bottom:16px;font-weight:700;opacity:.8}
+  .btns{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    position:relative;
+    height:76px;
+    margin-bottom:4px;
+  }
 
-.btns{
-  display:flex;
-  justify-content:center;
-  gap:14px;
-  position:relative;
-  height:80px;
-}
+  button{
+    border:none;
+    padding:12px 18px;
+    border-radius:999px;
+    font-weight:800;
+    cursor:pointer;
+    user-select:none;
+  }
 
-button{
-  border:none;
-  padding:12px 22px;
-  border-radius:999px;
-  font-weight:800;
-  cursor:pointer;
-}
+  #yes{background:#ff2d7a;color:#fff}
 
-#yes{background:#ff2d7a;color:#fff}
-#no{
-  background:#222;color:#fff;
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-}
+  #no{
+    background:#222;color:#fff;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    will-change:left,top;
+  }
 
-.msg{margin-top:14px;font-weight:900;min-height:24px}
+  .msg{margin-top:14px;font-weight:850;min-height:24px}
 
-canvas{position:absolute;inset:0;pointer-events:none}
+  .plan{display:none;margin-top:18px}
+  .smallBtn{
+    background:#111;color:#fff;
+    padding:8px 14px;
+    border-radius:999px;
+    margin:4px;
+    font-weight:850;
+  }
+  .ghostBtn{
+    background:transparent;
+    border:2px solid rgba(0,0,0,.3);
+    padding:8px 14px;
+    border-radius:999px;
+    font-weight:850;
+  }
+
+  /* Slideshow */
+  .slideshow{
+    display:none;
+    margin-top:16px;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid rgba(0,0,0,.08);
+    box-shadow:0 10px 22px rgba(0,0,0,.08);
+    background:#fff;
+  }
+  .slideFrame{
+    position:relative;
+    width:100%;
+    aspect-ratio: 16 / 10;
+    background:#0b0b0b;
+  }
+  .slideFrame img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    opacity:0;
+    transition:opacity .35s ease;
+  }
+  .slideFrame img.active{opacity:1}
+  .slideControls{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+    padding:10px 12px;
+  }
+  .dotRow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .dot{width:8px;height:8px;border-radius:99px;background:rgba(0,0,0,.18)}
+  .dot.on{background:#ff2d7a}
+  .tiny{font-size:12px;opacity:.75;font-weight:800}
+
+  canvas{position:absolute;inset:0;pointer-events:none}
 </style>
 </head>
 
 <body>
 
 <div class="layout">
-
-  <!-- LEFT SIDE PHOTOS -->
-  <aside class="side">
+  <!-- ✅ LEFT SIDE PHOTOS (match your GitHub filenames EXACTLY) -->
+  <aside class="side" aria-label="Side photos left">
     <img src="./Me1.JPG" alt="Me 1">
     <img src="./Me2.jpeg" alt="Me 2">
     <img src="./Me3.jpeg" alt="Me 3">
   </aside>
 
-  <!-- CARD -->
+  <!-- ✅ CARD (your original content) -->
   <div class="card" id="card">
     <canvas id="confetti"></canvas>
 
@@ -147,63 +214,271 @@ canvas{position:absolute;inset:0;pointer-events:none}
     </div>
 
     <div class="msg" id="msg"></div>
+
+    <div class="slideshow" id="slideshow">
+      <div class="slideFrame" id="slideFrame"></div>
+      <div class="slideControls">
+        <button class="ghostBtn" id="prevSlide">◀</button>
+        <div>
+          <div class="dotRow" id="dots"></div>
+          <div class="tiny" id="slideLabel">1 / 1</div>
+        </div>
+        <button class="ghostBtn" id="nextSlide">▶</button>
+      </div>
+    </div>
+
+    <div class="plan" id="plan">
+      <h3 style="margin:0 0 8px;">Okayyyy it’s official 💖</h3>
+      <p style="margin:0 0 10px;">Pick a plan (or type your own):</p>
+
+      <div>
+        <button class="smallBtn planOpt" data-idea="Dinner + dessert 🍝🍰">Dinner + dessert 🍝🍰</button>
+        <button class="smallBtn planOpt" data-idea="Movie night + snacks 🎬🍿">Movie night + snacks 🎬🍿</button>
+        <button class="smallBtn planOpt" data-idea="Coffee + walk + pics ☕️🚶‍♀️📸">Coffee + walk + pics ☕️🚶‍♀️📸</button>
+        <button class="smallBtn planOpt" data-idea="Bowling + arcade 🎳🕹️">Bowling + arcade 🎳🕹️</button>
+        <button class="smallBtn planOpt" data-idea="Picnic (indoors if cold) 🧺💗">Picnic 🧺💗</button>
+        <button class="smallBtn planOpt" data-idea="Mini road trip + playlist 🚗🎶">Mini road trip 🚗🎶</button>
+      </div>
+
+      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <input id="customIdea" type="text" placeholder="Type your own idea..."
+          style="padding:8px 12px; border-radius:999px; border:1px solid #ccc; font-weight:800; min-width:240px;">
+        <button class="ghostBtn" id="submitIdea">Use this 💌</button>
+        <button class="ghostBtn" id="copyTxt">Copy message ✨</button>
+      </div>
+
+      <p id="planMsg" style="margin-top:10px; font-weight:950;"></p>
+    </div>
   </div>
 
-  <!-- RIGHT SIDE PHOTOS -->
-  <aside class="side">
+  <!-- ✅ RIGHT SIDE PHOTOS -->
+  <aside class="side" aria-label="Side photos right">
     <img src="./Me4.jpeg" alt="Me 4">
   </aside>
-
 </div>
 
 <script>
-const card = document.getElementById("card");
-const btns = document.getElementById("btns");
-const yesBtn = document.getElementById("yes");
-const noBtn = document.getElementById("no");
-const msg = document.getElementById("msg");
-const meter = document.getElementById("meter");
-const meterLabel = document.getElementById("meterLabel");
+  const card = document.getElementById("card");
+  const btns = document.getElementById("btns");
+  const yesBtn = document.getElementById("yes");
+  const noBtn = document.getElementById("no");
+  const msg = document.getElementById("msg");
+  const meter = document.getElementById("meter");
+  const meterLabel = document.getElementById("meterLabel");
+  const plan = document.getElementById("plan");
+  const planMsg = document.getElementById("planMsg");
 
-let noCount = 0;
+  const slideshow = document.getElementById("slideshow");
+  const slideFrame = document.getElementById("slideFrame");
+  const dots = document.getElementById("dots");
+  const slideLabel = document.getElementById("slideLabel");
+  const prevSlideBtn = document.getElementById("prevSlide");
+  const nextSlideBtn = document.getElementById("nextSlide");
 
-function randomInt(min,max){
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
+  let noCount = 0;
 
-function setMeter(pct){
-  meter.style.width=pct+"%";
-  meterLabel.textContent=`Convincing you… ${pct}%`;
-}
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
-function moveNo(){
-  const padding=8;
-  const areaW=btns.clientWidth;
-  const areaH=btns.clientHeight;
+  function setMeter(pct) {
+    meter.style.width = pct + "%";
+    meterLabel.textContent = `Convincing you… ${pct}%`;
+  }
 
-  const left=randomInt(padding,areaW-noBtn.offsetWidth-padding);
-  const top=randomInt(padding,areaH-noBtn.offsetHeight-padding);
+  function typeText(el, text) {
+    el.textContent = "";
+    let i = 0;
+    const t = setInterval(() => {
+      el.textContent += text[i++];
+      if (i >= text.length) clearInterval(t);
+    }, 25);
+  }
 
-  noBtn.style.left=left+"px";
-  noBtn.style.top=top+"px";
-  noBtn.style.transform="translate(0,0)";
-}
+  function moveNoButton() {
+    const padding = 8;
+    const areaW = btns.clientWidth;
+    const areaH = btns.clientHeight;
 
-yesBtn.addEventListener("click",()=>{
-  yesBtn.disabled=true;
-  noBtn.disabled=true;
-  setMeter(100);
-  msg.textContent="Yayyy!! 💖🥰 I knew you'd say yes!";
-});
+    const maxLeft = areaW - noBtn.offsetWidth - padding;
+    const maxTop  = areaH - noBtn.offsetHeight - padding;
 
-noBtn.addEventListener("mouseenter",moveNo);
-noBtn.addEventListener("click",(e)=>{
-  e.preventDefault();
-  noCount++;
-  setMeter(Math.min(noCount*20,95));
-  moveNo();
-});
+    const left = randomInt(padding, Math.max(padding, maxLeft));
+    const top  = randomInt(padding, Math.max(padding, maxTop));
+
+    noBtn.style.left = left + "px";
+    noBtn.style.top = top + "px";
+    noBtn.style.transform = "translate(0,0)";
+  }
+
+  function spawnHeart() {
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.textContent = Math.random() < 0.7 ? "💗" : "💖";
+    h.style.left = randomInt(0, 100) + "vw";
+    h.style.animationDuration = randomInt(4000, 8000) + "ms";
+    h.style.fontSize = randomInt(14, 28) + "px";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 8500);
+  }
+  setInterval(spawnHeart, 500);
+
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  function resizeCanvas(){
+    canvas.width = card.clientWidth;
+    canvas.height = card.clientHeight;
+  }
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
+
+  let confetti = [];
+  function burstConfetti() {
+    resizeCanvas();
+    confetti = [];
+    for (let i = 0; i < 160; i++) {
+      confetti.push({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        vx: (Math.random() - 0.5) * 9,
+        vy: (Math.random() - 1.0) * 9,
+        g: 0.22,
+        a: 1
+      });
+    }
+    requestAnimationFrame(updateConfetti);
+  }
+  function updateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confetti.forEach(p => {
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.a -= 0.012;
+      ctx.globalAlpha = Math.max(0, p.a);
+      ctx.fillStyle = "#ff2d7a";
+      ctx.fillRect(p.x, p.y, 4, 4);
+    });
+    ctx.globalAlpha = 1;
+    confetti = confetti.filter(p => p.a > 0);
+    if (confetti.length) requestAnimationFrame(updateConfetti);
+  }
+
+  const photos = [
+    "photo1.jpg",
+    "photo2.jpeg",
+    "photo3.jpeg",
+    "photo4.jpeg",
+    "photo5.JPG"
+  ];
+
+  let currentSlide = 0;
+  let slideTimer = null;
+
+  function renderSlideshow() {
+    slideFrame.innerHTML = "";
+    dots.innerHTML = "";
+
+    photos.forEach((src, idx) => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Photo " + (idx + 1);
+      img.loading = "lazy";
+      if (idx === currentSlide) img.classList.add("active");
+      slideFrame.appendChild(img);
+
+      const d = document.createElement("div");
+      d.className = "dot" + (idx === currentSlide ? " on" : "");
+      d.addEventListener("click", () => goToSlide(idx));
+      dots.appendChild(d);
+    });
+
+    slideLabel.textContent = `${currentSlide + 1} / ${photos.length}`;
+  }
+
+  function goToSlide(idx) {
+    currentSlide = (idx + photos.length) % photos.length;
+
+    const imgs = slideFrame.querySelectorAll("img");
+    imgs.forEach((im, i) => im.classList.toggle("active", i === currentSlide));
+
+    const dotEls = dots.querySelectorAll(".dot");
+    dotEls.forEach((d, i) => d.classList.toggle("on", i === currentSlide));
+
+    slideLabel.textContent = `${currentSlide + 1} / ${photos.length}`;
+    startAutoplay();
+  }
+
+  function nextSlide() { goToSlide(currentSlide + 1); }
+  function prevSlide() { goToSlide(currentSlide - 1); }
+
+  function startAutoplay() {
+    if (slideTimer) clearInterval(slideTimer);
+    if (photos.length > 1) slideTimer = setInterval(nextSlide, 2500);
+  }
+
+  prevSlideBtn.addEventListener("click", prevSlide);
+  nextSlideBtn.addEventListener("click", nextSlide);
+
+  slideshow.addEventListener("mouseenter", () => slideTimer && clearInterval(slideTimer));
+  slideshow.addEventListener("mouseleave", startAutoplay);
+
+  yesBtn.addEventListener("click", () => {
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
+
+    setMeter(100);
+    typeText(msg, "Yayyy!! 💖🥰 I knew you'd say yes!");
+    burstConfetti();
+
+    slideshow.style.display = "block";
+    plan.style.display = "block";
+
+    currentSlide = 0;
+    renderSlideshow();
+    startAutoplay();
+
+    setTimeout(() => slideshow.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
+  });
+
+  noBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    noCount++;
+    setMeter(Math.min(noCount * 18, 95));
+    moveNoButton();
+    yesBtn.style.transform = `scale(${1 + Math.min(0.45, noCount * 0.06)})`;
+  });
+
+  noBtn.addEventListener("mouseenter", () => {
+    if (!noBtn.disabled) moveNoButton();
+  });
+
+  document.querySelectorAll(".planOpt").forEach(btn => {
+    btn.addEventListener("click", () => {
+      planMsg.textContent = "Perfect 😍 Our plan: " + btn.dataset.idea;
+    });
+  });
+
+  const customIdea = document.getElementById("customIdea");
+  document.getElementById("submitIdea").addEventListener("click", () => {
+    const idea = customIdea.value.trim();
+    if (!idea) { planMsg.textContent = "Type something first 😄"; return; }
+    planMsg.textContent = "Perfect 😍 Our plan: " + idea;
+  });
+
+  customIdea.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("submitIdea").click();
+  });
+
+  document.getElementById("copyTxt").addEventListener("click", async () => {
+    try {
+      const extra = planMsg.textContent ? ("\n" + planMsg.textContent) : "";
+      await navigator.clipboard.writeText("Happy Valentine’s Day 💖 I’m really happy you’re my person 🥰" + extra);
+      planMsg.textContent = "Copied ✅";
+    } catch {
+      planMsg.textContent = "Copy blocked by browser 😭";
+    }
+  });
 </script>
-
 </body>
 </html>
