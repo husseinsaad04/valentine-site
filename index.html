@@ -48,16 +48,16 @@
     flex-direction:column;
     gap:14px;
   }
- 
- .side img{
+
+  .side img{
     width:100%;
     height:170px;
     object-fit:cover;
     border-radius:18px;
     box-shadow:0 10px 22px rgba(0,0,0,.08);
     background:#fff;
-  }    /* clean background around image */
- 
+  }
+
   @media (max-width: 900px){
     .layout{ grid-template-columns:1fr; }
     .side{
@@ -187,10 +187,92 @@
   .tiny{font-size:12px;opacity:.75;font-weight:800}
 
   canvas{position:absolute;inset:0;pointer-events:none}
+
+  /* ✅ SECURITY GATE */
+  .gate{
+    position:fixed;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:18px;
+    background:rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
+    z-index:9999;
+  }
+  .gateCard{
+    width:min(520px, 92vw);
+    background:rgba(255,255,255,.96);
+    border-radius:18px;
+    box-shadow:0 18px 50px rgba(0,0,0,.22);
+    padding:18px;
+    text-align:center;
+  }
+  .qBox{
+    margin-top:10px;
+    padding:14px;
+    border-radius:14px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.08);
+  }
+  .q{
+    font-weight:900;
+    margin-bottom:10px;
+    font-size:16px;
+  }
+  .gateInput{
+    width:min(360px, 90%);
+    padding:10px 12px;
+    border-radius:999px;
+    border:1px solid #ccc;
+    font-weight:800;
+    outline:none;
+  }
+  .gateBtns{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .gateMsg{
+    margin-top:10px;
+    font-weight:900;
+    min-height:22px;
+  }
 </style>
 </head>
 
 <body>
+
+<!-- ✅ Security Gate Overlay -->
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="Security Question">
+  <div class="gateCard">
+    <h2 style="margin:0 0 6px;">Quick security question 🔒</h2>
+    <p style="margin:0 0 12px; font-weight:700; opacity:.85;">
+      Answer to unlock the question:
+    </p>
+
+    <div class="qBox">
+      <div class="q" id="gateQ">Security Question</div>
+
+      <input
+        id="gateA"
+        type="password"
+        autocomplete="off"
+        placeholder="Type answer…"
+        class="gateInput"
+      />
+
+      <div class="gateBtns">
+        <button class="ghostBtn" id="gateHint">Hint</button>
+        <button class="smallBtn" id="gateUnlock">Unlock 💘</button>
+      </div>
+
+      <div class="gateMsg" id="gateMsg"></div>
+    </div>
+  </div>
+</div>
 
 <div class="layout">
   <!-- ✅ LEFT SIDE PHOTOS (match your GitHub filenames EXACTLY) -->
@@ -254,13 +336,11 @@
   </div>
 
   <!-- ✅ RIGHT SIDE PHOTOS -->
-  <!-- RIGHT SIDE PHOTOS -->
-<aside class="side" aria-label="Side photos right">
-  <img src="./Me4.jpeg" alt="Me 4">
-  <img src="./Me5.jpeg" alt="Me 5">
-  <img src="./Me6.jpeg" alt="Me 6">
-</aside>
-
+  <aside class="side" aria-label="Side photos right">
+    <img src="./Me4.jpeg" alt="Me 4">
+    <img src="./Me5.jpeg" alt="Me 5">
+    <img src="./Me6.jpeg" alt="Me 6">
+  </aside>
 </div>
 
 <script>
@@ -280,6 +360,75 @@
   const slideLabel = document.getElementById("slideLabel");
   const prevSlideBtn = document.getElementById("prevSlide");
   const nextSlideBtn = document.getElementById("nextSlide");
+
+  /* =========================================================
+     ✅ SECURITY GATE SETTINGS — EDIT THESE 3 LINES
+     ========================================================= */
+  const SECURITY_QUESTION = "When was our first kiss?";  // <-- EDIT THIS LINE
+  const SECURITY_ANSWER   = "August 20";                      // <-- EDIT THIS LINE (lowercase recommended)
+  const SECURITY_HINT     = "Smores";                         // <-- EDIT THIS LINE (optional)
+
+  // Gate elements
+  const gate = document.getElementById("gate");
+  const gateQ = document.getElementById("gateQ");
+  const gateA = document.getElementById("gateA");
+  const gateMsg = document.getElementById("gateMsg");
+  const gateUnlock = document.getElementById("gateUnlock");
+  const gateHint = document.getElementById("gateHint");
+
+  // Hide main content until unlocked
+  const layout = document.querySelector(".layout");
+  layout.style.filter = "blur(12px)";
+  layout.style.pointerEvents = "none";
+  layout.style.userSelect = "none";
+
+  // Set question text
+  gateQ.textContent = SECURITY_QUESTION;
+
+  function normalize(s){
+    return (s || "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
+  function unlockIfCorrect(){
+    const guess = normalize(gateA.value);
+    const answer = normalize(SECURITY_ANSWER);
+
+    if (!guess){
+      gateMsg.textContent = "Type an answer first 😄";
+      return;
+    }
+
+    if (guess === answer){
+      gateMsg.textContent = "Unlocked ✅";
+      gate.style.display = "none";
+      layout.style.filter = "none";
+      layout.style.pointerEvents = "auto";
+      layout.style.userSelect = "auto";
+      return;
+    }
+
+    gateMsg.textContent = "Nope 🙃 try again";
+    gateA.value = "";
+    gateA.focus();
+  }
+
+  gateUnlock.addEventListener("click", unlockIfCorrect);
+  gateA.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") unlockIfCorrect();
+  });
+
+  gateHint.addEventListener("click", () => {
+    gateMsg.textContent = "Hint: " + SECURITY_HINT;
+  });
+
+  setTimeout(() => gateA.focus(), 80);
+
+  /* =======================
+     Your original JS below
+     ======================= */
 
   let noCount = 0;
 
