@@ -240,6 +240,93 @@
     font-weight:900;
     min-height:22px;
   }
+
+  /* 💬 Message Wall */
+  .messages{
+    margin-top:18px;
+    padding-top:8px;
+    border-top:1px solid rgba(0,0,0,.08);
+    display:none; /* shown after YES */
+  }
+
+  .msgForm{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin:10px 0 6px;
+  }
+
+  .msgForm input{
+    padding:10px 12px;
+    border-radius:999px;
+    border:1px solid #ccc;
+    font-weight:800;
+    outline:none;
+  }
+
+  #msgName{ min-width:160px; }
+  #msgText{ min-width:min(420px, 90vw); }
+
+  .msgTools{
+    display:flex;
+    justify-content:center;
+    margin:6px 0 10px;
+  }
+
+  .msgList{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-height:240px;
+    overflow:auto;
+    padding:6px 4px;
+  }
+
+  .msgCard{
+    background:#fff;
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:14px;
+    padding:10px 12px;
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
+    text-align:left;
+  }
+
+  .msgTop{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+
+  .msgMeta{
+    font-weight:950;
+    font-size:13px;
+    opacity:.85;
+  }
+
+  .msgTime{
+    font-size:12px;
+    opacity:.6;
+    font-weight:850;
+    white-space:nowrap;
+  }
+
+  .msgBody{
+    font-weight:850;
+    line-height:1.25;
+    word-wrap:break-word;
+  }
+
+  .msgDelete{
+    border:none;
+    background:transparent;
+    cursor:pointer;
+    font-weight:950;
+    opacity:.6;
+  }
+  .msgDelete:hover{ opacity:1; }
 </style>
 </head>
 
@@ -275,14 +362,13 @@
 </div>
 
 <div class="layout">
-  <!-- ✅ LEFT SIDE PHOTOS (match your GitHub filenames EXACTLY) -->
+  <!-- ✅ LEFT SIDE PHOTOS -->
   <aside class="side" aria-label="Side photos left">
     <img src="./Me1.JPG" alt="Me 1">
     <img src="./Me2.jpeg" alt="Me 2">
     <img src="./Me3.jpeg" alt="Me 3">
   </aside>
 
-  <!-- ✅ CARD (your original content) -->
   <div class="card" id="card">
     <canvas id="confetti"></canvas>
 
@@ -332,6 +418,23 @@
       </div>
 
       <p id="planMsg" style="margin-top:10px; font-weight:950;"></p>
+
+      <!-- 💬 Message Wall -->
+      <div class="messages" id="messagesBox">
+        <h3 style="margin:16px 0 8px;">Leave a message 💌</h3>
+
+        <div class="msgForm">
+          <input id="msgName" type="text" placeholder="Name (optional)" maxlength="24">
+          <input id="msgText" type="text" placeholder="Type a message..." maxlength="180">
+          <button class="smallBtn" id="sendMsg">Send</button>
+        </div>
+
+        <div class="msgTools">
+          <button class="ghostBtn" id="clearMsgs">Clear (this device)</button>
+        </div>
+
+        <div class="msgList" id="msgList"></div>
+      </div>
     </div>
   </div>
 
@@ -361,12 +464,20 @@
   const prevSlideBtn = document.getElementById("prevSlide");
   const nextSlideBtn = document.getElementById("nextSlide");
 
+  // Message wall elements
+  const messagesBox = document.getElementById("messagesBox");
+  const msgName = document.getElementById("msgName");
+  const msgText = document.getElementById("msgText");
+  const sendMsg = document.getElementById("sendMsg");
+  const clearMsgs = document.getElementById("clearMsgs");
+  const msgList = document.getElementById("msgList");
+
   /* =========================================================
      ✅ SECURITY GATE SETTINGS — EDIT THESE 3 LINES
      ========================================================= */
-  const SECURITY_QUESTION = "When was our first kiss?";  // <-- EDIT THIS LINE
-  const SECURITY_ANSWER   = "August 20";                      // <-- EDIT THIS LINE (lowercase recommended)
-  const SECURITY_HINT     = "Smores";                         // <-- EDIT THIS LINE (optional)
+  const SECURITY_QUESTION = "What’s our favorite food?";  // <-- EDIT THIS LINE
+  const SECURITY_ANSWER   = "pasta";                      // <-- EDIT THIS LINE (lowercase recommended)
+  const SECURITY_HINT     = "🍝";                         // <-- EDIT THIS LINE (optional)
 
   // Gate elements
   const gate = document.getElementById("gate");
@@ -425,6 +536,97 @@
   });
 
   setTimeout(() => gateA.focus(), 80);
+
+  /* =========================
+     💬 Message Wall (localStorage)
+     ========================= */
+  const MSG_KEY = "valentine_messages_v1";
+
+  function loadMessages(){
+    try{
+      return JSON.parse(localStorage.getItem(MSG_KEY) || "[]");
+    }catch{
+      return [];
+    }
+  }
+
+  function saveMessages(arr){
+    localStorage.setItem(MSG_KEY, JSON.stringify(arr));
+  }
+
+  function fmtTime(ts){
+    const d = new Date(ts);
+    return d.toLocaleString(undefined, { month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+  }
+
+  function renderMessages(){
+    const items = loadMessages();
+    msgList.innerHTML = "";
+
+    if (!items.length){
+      msgList.innerHTML = `<div style="opacity:.7;font-weight:850;text-align:center;">No messages yet 🙂</div>`;
+      return;
+    }
+
+    items.slice().reverse().forEach((m) => {
+      const card = document.createElement("div");
+      card.className = "msgCard";
+
+      card.innerHTML = `
+        <div class="msgTop">
+          <div class="msgMeta">${m.name ? m.name : "Anonymous"} <span style="opacity:.5;">•</span> <span class="msgTime">${fmtTime(m.ts)}</span></div>
+          <button class="msgDelete" title="Delete">✖</button>
+        </div>
+        <div class="msgBody"></div>
+      `;
+
+      card.querySelector(".msgBody").textContent = m.text;
+
+      card.querySelector(".msgDelete").addEventListener("click", () => {
+        const all = loadMessages();
+        const next = all.filter(x => x.id !== m.id);
+        saveMessages(next);
+        renderMessages();
+      });
+
+      msgList.appendChild(card);
+    });
+  }
+
+  function addMessage(){
+    const name = (msgName.value || "").trim();
+    const text = (msgText.value || "").trim();
+
+    if (!text){
+      msgText.focus();
+      return;
+    }
+
+    const all = loadMessages();
+    all.push({
+      id: (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
+      name: name.slice(0, 24),
+      text: text.slice(0, 180),
+      ts: Date.now()
+    });
+
+    saveMessages(all);
+    msgText.value = "";
+    renderMessages();
+    msgText.focus();
+  }
+
+  sendMsg.addEventListener("click", addMessage);
+  msgText.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") addMessage();
+  });
+
+  clearMsgs.addEventListener("click", () => {
+    localStorage.removeItem(MSG_KEY);
+    renderMessages();
+  });
+
+  renderMessages();
 
   /* =======================
      Your original JS below
@@ -588,6 +790,7 @@
 
     slideshow.style.display = "block";
     plan.style.display = "block";
+    messagesBox.style.display = "block"; // show message wall after yes
 
     currentSlide = 0;
     renderSlideshow();
