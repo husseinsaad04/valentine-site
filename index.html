@@ -35,7 +35,6 @@
     to{transform:translateY(-110vh);opacity:0}
   }
 
-  /* ✅ Layout: side photos | card | side photos */
   .layout{
     width:min(1200px,96vw);
     display:grid;
@@ -48,7 +47,6 @@
     flex-direction:column;
     gap:14px;
   }
-
   .side img{
     width:100%;
     height:170px;
@@ -148,7 +146,6 @@
     font-weight:850;
   }
 
-  /* Slideshow */
   .slideshow{
     display:none;
     margin-top:16px;
@@ -248,7 +245,6 @@
     border-top:1px solid rgba(0,0,0,.08);
     display:none; /* shown after YES */
   }
-
   .msgForm{
     display:flex;
     gap:10px;
@@ -256,7 +252,6 @@
     flex-wrap:wrap;
     margin:10px 0 6px;
   }
-
   .msgForm input{
     padding:10px 12px;
     border-radius:999px;
@@ -264,7 +259,6 @@
     font-weight:800;
     outline:none;
   }
-
   #msgName{ min-width:160px; }
   #msgText{ min-width:min(420px, 90vw); }
 
@@ -278,7 +272,7 @@
     display:flex;
     flex-direction:column;
     gap:10px;
-    max-height:240px;
+    max-height:260px;
     overflow:auto;
     padding:6px 4px;
   }
@@ -291,7 +285,6 @@
     box-shadow:0 8px 18px rgba(0,0,0,.06);
     text-align:left;
   }
-
   .msgTop{
     display:flex;
     justify-content:space-between;
@@ -299,34 +292,22 @@
     align-items:center;
     margin-bottom:6px;
   }
-
   .msgMeta{
     font-weight:950;
     font-size:13px;
     opacity:.85;
   }
-
   .msgTime{
     font-size:12px;
     opacity:.6;
     font-weight:850;
     white-space:nowrap;
   }
-
   .msgBody{
     font-weight:850;
     line-height:1.25;
     word-wrap:break-word;
   }
-
-  .msgDelete{
-    border:none;
-    background:transparent;
-    cursor:pointer;
-    font-weight:950;
-    opacity:.6;
-  }
-  .msgDelete:hover{ opacity:1; }
 </style>
 </head>
 
@@ -336,20 +317,12 @@
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="Security Question">
   <div class="gateCard">
     <h2 style="margin:0 0 6px;">Quick security question 🔒</h2>
-    <p style="margin:0 0 12px; font-weight:700; opacity:.85;">
-      Answer to unlock the question:
-    </p>
+    <p style="margin:0 0 12px; font-weight:700; opacity:.85;">Answer to unlock the question:</p>
 
     <div class="qBox">
       <div class="q" id="gateQ">Security Question</div>
 
-      <input
-        id="gateA"
-        type="password"
-        autocomplete="off"
-        placeholder="Type answer…"
-        class="gateInput"
-      />
+      <input id="gateA" type="password" autocomplete="off" placeholder="Type answer…" class="gateInput" />
 
       <div class="gateBtns">
         <button class="ghostBtn" id="gateHint">Hint</button>
@@ -430,7 +403,7 @@
         </div>
 
         <div class="msgTools">
-          <button class="ghostBtn" id="clearMsgs">Clear (this device)</button>
+          <button class="ghostBtn" id="clearInputs">Clear inputs</button>
         </div>
 
         <div class="msgList" id="msgList"></div>
@@ -446,7 +419,40 @@
   </aside>
 </div>
 
-<script>
+<script type="module">
+  /* ===========================
+     ✅ Firebase (CDN) + Firestore
+     =========================== */
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp,
+    query,
+    orderBy,
+    onSnapshot,
+    limit
+  } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+  // ✅ Firebase config (yours)
+  const firebaseConfig = {
+    apiKey: "AIzaSyByrG8yhLFIBv2blOLcmsu9vlWL4nDQ3g",
+    authDomain: "valentine-3fa85.firebaseapp.com",
+    projectId: "valentine-3fa85",
+    storageBucket: "valentine-3fa85.firebasestorage.app",
+    messagingSenderId: "351065784635",
+    appId: "1:351065784635:web:1a7dc2e477129f86fb371e",
+    measurementId: "G-CWMMM8Z2DD"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const messagesCol = collection(db, "messages");
+
+  /* =======================
+     DOM refs
+     ======================= */
   const card = document.getElementById("card");
   const btns = document.getElementById("btns");
   const yesBtn = document.getElementById("yes");
@@ -464,21 +470,20 @@
   const prevSlideBtn = document.getElementById("prevSlide");
   const nextSlideBtn = document.getElementById("nextSlide");
 
-  // Message wall elements
+  // Message wall
   const messagesBox = document.getElementById("messagesBox");
   const msgName = document.getElementById("msgName");
   const msgText = document.getElementById("msgText");
   const sendMsg = document.getElementById("sendMsg");
-  const clearMsgs = document.getElementById("clearMsgs");
+  const clearInputs = document.getElementById("clearInputs");
   const msgList = document.getElementById("msgList");
 
   /* =========================================================
      ✅ SECURITY GATE SETTINGS — EDIT THESE 3 LINES
      ========================================================= */
-  const SECURITY_QUESTION = "When was our first kiss?";  // <-- EDIT THIS LINE
-  const SECURITY_ANSWER   = "nigger";                      // <-- EDIT THIS LINE (lowercase recommended)
-  const SECURITY_HINT     = "Smores";      
- // <-- EDIT THIS LINE (optional)
+  const SECURITY_QUESTION = "When was our first kiss?"; // <-- EDIT THIS LINE
+  const SECURITY_ANSWER   = "feb 14";                   // <-- EDIT THIS LINE
+  const SECURITY_HINT     = "Valentine’s Day 😉";        // <-- EDIT THIS LINE
 
   // Gate elements
   const gate = document.getElementById("gate");
@@ -494,7 +499,6 @@
   layout.style.pointerEvents = "none";
   layout.style.userSelect = "none";
 
-  // Set question text
   gateQ.textContent = SECURITY_QUESTION;
 
   function normalize(s){
@@ -531,144 +535,17 @@
   gateA.addEventListener("keydown", (e) => {
     if (e.key === "Enter") unlockIfCorrect();
   });
-
   gateHint.addEventListener("click", () => {
     gateMsg.textContent = "Hint: " + SECURITY_HINT;
   });
-
   setTimeout(() => gateA.focus(), 80);
 
-  /* =========================
-     💬 Message Wall (localStorage)
-     ========================= */
-  const MSG_KEY = "valentine_messages_v1";
-
-  function loadMessages(){
-    try{
-      return JSON.parse(localStorage.getItem(MSG_KEY) || "[]");
-    }catch{
-      return [];
-    }
-  }
-
-  function saveMessages(arr){
-    localStorage.setItem(MSG_KEY, JSON.stringify(arr));
-  }
-
-  function fmtTime(ts){
-    const d = new Date(ts);
-    return d.toLocaleString(undefined, { month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
-  }
-
-  function renderMessages(){
-    const items = loadMessages();
-    msgList.innerHTML = "";
-
-    if (!items.length){
-      msgList.innerHTML = `<div style="opacity:.7;font-weight:850;text-align:center;">No messages yet 🙂</div>`;
-      return;
-    }
-
-    items.slice().reverse().forEach((m) => {
-      const card = document.createElement("div");
-      card.className = "msgCard";
-
-      card.innerHTML = `
-        <div class="msgTop">
-          <div class="msgMeta">${m.name ? m.name : "Anonymous"} <span style="opacity:.5;">•</span> <span class="msgTime">${fmtTime(m.ts)}</span></div>
-          <button class="msgDelete" title="Delete">✖</button>
-        </div>
-        <div class="msgBody"></div>
-      `;
-
-      card.querySelector(".msgBody").textContent = m.text;
-
-      card.querySelector(".msgDelete").addEventListener("click", () => {
-        const all = loadMessages();
-        const next = all.filter(x => x.id !== m.id);
-        saveMessages(next);
-        renderMessages();
-      });
-
-      msgList.appendChild(card);
-    });
-  }
-
-  function addMessage(){
-    const name = (msgName.value || "").trim();
-    const text = (msgText.value || "").trim();
-
-    if (!text){
-      msgText.focus();
-      return;
-    }
-
-    const all = loadMessages();
-    all.push({
-      id: (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
-      name: name.slice(0, 24),
-      text: text.slice(0, 180),
-      ts: Date.now()
-    });
-
-    saveMessages(all);
-    msgText.value = "";
-    renderMessages();
-    msgText.focus();
-  }
-
-  sendMsg.addEventListener("click", addMessage);
-  msgText.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") addMessage();
-  });
-
-  clearMsgs.addEventListener("click", () => {
-    localStorage.removeItem(MSG_KEY);
-    renderMessages();
-  });
-
-  renderMessages();
-
-  /* =======================
-     Your original JS below
-     ======================= */
-
-  let noCount = 0;
-
+  /* ===========================
+     Hearts background
+     =========================== */
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
-  function setMeter(pct) {
-    meter.style.width = pct + "%";
-    meterLabel.textContent = `Convincing you… ${pct}%`;
-  }
-
-  function typeText(el, text) {
-    el.textContent = "";
-    let i = 0;
-    const t = setInterval(() => {
-      el.textContent += text[i++];
-      if (i >= text.length) clearInterval(t);
-    }, 25);
-  }
-
-  function moveNoButton() {
-    const padding = 8;
-    const areaW = btns.clientWidth;
-    const areaH = btns.clientHeight;
-
-    const maxLeft = areaW - noBtn.offsetWidth - padding;
-    const maxTop  = areaH - noBtn.offsetHeight - padding;
-
-    const left = randomInt(padding, Math.max(padding, maxLeft));
-    const top  = randomInt(padding, Math.max(padding, maxTop));
-
-    noBtn.style.left = left + "px";
-    noBtn.style.top = top + "px";
-    noBtn.style.transform = "translate(0,0)";
-  }
-
   function spawnHeart() {
     const h = document.createElement("div");
     h.className = "heart";
@@ -681,6 +558,9 @@
   }
   setInterval(spawnHeart, 500);
 
+  /* ===========================
+     Confetti
+     =========================== */
   const canvas = document.getElementById("confetti");
   const ctx = canvas.getContext("2d");
   function resizeCanvas(){
@@ -722,6 +602,56 @@
     if (confetti.length) requestAnimationFrame(updateConfetti);
   }
 
+  /* ===========================
+     Meter + buttons
+     =========================== */
+  let noCount = 0;
+
+  function setMeter(pct) {
+    meter.style.width = pct + "%";
+    meterLabel.textContent = `Convincing you… ${pct}%`;
+  }
+
+  function typeText(el, text) {
+    el.textContent = "";
+    let i = 0;
+    const t = setInterval(() => {
+      el.textContent += text[i++];
+      if (i >= text.length) clearInterval(t);
+    }, 25);
+  }
+
+  function moveNoButton() {
+    const padding = 8;
+    const areaW = btns.clientWidth;
+    const areaH = btns.clientHeight;
+
+    const maxLeft = areaW - noBtn.offsetWidth - padding;
+    const maxTop  = areaH - noBtn.offsetHeight - padding;
+
+    const left = randomInt(padding, Math.max(padding, maxLeft));
+    const top  = randomInt(padding, Math.max(padding, maxTop));
+
+    noBtn.style.left = left + "px";
+    noBtn.style.top = top + "px";
+    noBtn.style.transform = "translate(0,0)";
+  }
+
+  noBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    noCount++;
+    setMeter(Math.min(noCount * 18, 95));
+    moveNoButton();
+    yesBtn.style.transform = `scale(${1 + Math.min(0.45, noCount * 0.06)})`;
+  });
+
+  noBtn.addEventListener("mouseenter", () => {
+    if (!noBtn.disabled) moveNoButton();
+  });
+
+  /* ===========================
+     Slideshow
+     =========================== */
   const photos = [
     "photo1.jpg",
     "photo2.jpeg",
@@ -781,37 +711,9 @@
   slideshow.addEventListener("mouseenter", () => slideTimer && clearInterval(slideTimer));
   slideshow.addEventListener("mouseleave", startAutoplay);
 
-  yesBtn.addEventListener("click", () => {
-    yesBtn.disabled = true;
-    noBtn.disabled = true;
-
-    setMeter(100);
-    typeText(msg, "Yayyy!! 💖🥰 I knew you'd say yes!");
-    burstConfetti();
-
-    slideshow.style.display = "block";
-    plan.style.display = "block";
-    messagesBox.style.display = "block"; // show message wall after yes
-
-    currentSlide = 0;
-    renderSlideshow();
-    startAutoplay();
-
-    setTimeout(() => slideshow.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
-  });
-
-  noBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    noCount++;
-    setMeter(Math.min(noCount * 18, 95));
-    moveNoButton();
-    yesBtn.style.transform = `scale(${1 + Math.min(0.45, noCount * 0.06)})`;
-  });
-
-  noBtn.addEventListener("mouseenter", () => {
-    if (!noBtn.disabled) moveNoButton();
-  });
-
+  /* ===========================
+     Plans
+     =========================== */
   document.querySelectorAll(".planOpt").forEach(btn => {
     btn.addEventListener("click", () => {
       planMsg.textContent = "Perfect 😍 Our plan: " + btn.dataset.idea;
@@ -838,10 +740,111 @@
       planMsg.textContent = "Copy blocked by browser 😭";
     }
   });
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+  /* ===========================
+     ✅ Firestore Message Wall
+     =========================== */
+  function fmtTimeFromFirestore(ts){
+    if (!ts) return "";
+    try{
+      // Firestore Timestamp has toDate()
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleString(undefined, { month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+    }catch{
+      return "";
+    }
+  }
+
+  function renderFirestoreMessages(snapshot){
+    msgList.innerHTML = "";
+    if (snapshot.empty){
+      msgList.innerHTML = `<div style="opacity:.7;font-weight:850;text-align:center;">No messages yet 🙂</div>`;
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data() || {};
+      const name = (data.name || "Anonymous").toString().slice(0, 24);
+      const text = (data.text || "").toString().slice(0, 180);
+      const time = fmtTimeFromFirestore(data.createdAt);
+
+      const c = document.createElement("div");
+      c.className = "msgCard";
+      c.innerHTML = `
+        <div class="msgTop">
+          <div class="msgMeta">${name}</div>
+          <div class="msgTime">${time}</div>
+        </div>
+        <div class="msgBody"></div>
+      `;
+      c.querySelector(".msgBody").textContent = text;
+      msgList.appendChild(c);
+    });
+  }
+
+  // Real-time listener (latest 50)
+  const msgQuery = query(messagesCol, orderBy("createdAt", "desc"), limit(50));
+  onSnapshot(msgQuery, (snap) => renderFirestoreMessages(snap), (err) => {
+    msgList.innerHTML = `<div style="opacity:.7;font-weight:850;text-align:center;">Messages not loading (check Firestore Rules) 😭</div>`;
+    console.error(err);
+  });
+
+  async function addMessage(){
+    const name = (msgName.value || "").trim().slice(0, 24);
+    const text = (msgText.value || "").trim().slice(0, 180);
+    if (!text){ msgText.focus(); return; }
+
+    sendMsg.disabled = true;
+    sendMsg.textContent = "Sending…";
+
+    try{
+      await addDoc(messagesCol, {
+        name: name || "Anonymous",
+        text,
+        createdAt: serverTimestamp()
+      });
+      msgText.value = "";
+      msgText.focus();
+    }catch(e){
+      alert("Couldn’t send message. Check Firestore Rules.");
+      console.error(e);
+    }finally{
+      sendMsg.disabled = false;
+      sendMsg.textContent = "Send";
+    }
+  }
+
+  sendMsg.addEventListener("click", addMessage);
+  msgText.addEventListener("keydown", (e) => { if (e.key === "Enter") addMessage(); });
+
+  clearInputs.addEventListener("click", () => {
+    msgName.value = "";
+    msgText.value = "";
+    msgText.focus();
+  });
+
+  /* ===========================
+     YES button (show extras)
+     =========================== */
+  yesBtn.addEventListener("click", () => {
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
+
+    setMeter(100);
+    typeText(msg, "Yayyy!! 💖🥰 I knew you'd say yes!");
+    burstConfetti();
+
+    slideshow.style.display = "block";
+    plan.style.display = "block";
+    messagesBox.style.display = "block";
+
+    currentSlide = 0;
+    renderSlideshow();
+    startAutoplay();
+
+    setTimeout(() => slideshow.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
+  });
+</script>
 
 </body>
 </html>
-</script>
