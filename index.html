@@ -838,6 +838,9 @@
       planMsg.textContent = "Copy blocked by browser 😭";
     }
   });
-</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
 </body>
 </html>
